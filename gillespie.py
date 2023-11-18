@@ -43,7 +43,7 @@ class reaction:
                 helpPrint()
                 exit(1)
             else:
-                reactStrs = reactProd[0].split('+')
+                reactStrs = reactProd[0].split(' + ')
                 for reactStr in reactStrs:
                     currCoeffStr = ""
                     currMolecStr = ""
@@ -67,7 +67,7 @@ class reaction:
                 helpPrint()
                 exit(1)
             else:
-                prodStrs = reactProd[1].split('+')
+                prodStrs = reactProd[1].split(' + ')
                 for prodStr in prodStrs:
                     currCoeffStr = ""
                     currMolecStr = ""
@@ -312,9 +312,8 @@ if __name__ == "__main__":
     plt.title("Brusselator chemical system (Y2)")
     plt.show()
     
-
     # Simulate the Oregonator system
-
+    
     counts = {'X1': -1, 'X2': -1, 'X3': -1, 'Y1': 500, 'Y2': 1000, 'Y3': 2000, 'Z1': 0, 'Z2': 0}
     p1 = 2000
     p2 = 50000
@@ -345,3 +344,80 @@ if __name__ == "__main__":
     """
 
     # Simulate poleward flux of microtubule
+    # Notation: T_e_s
+    #  - e (+/-): Polarity of the end
+    #  - s (+/-/0): State of the end
+
+    # Define rate constants for reactions
+    k1_f = 0.04
+    k1_r = 0.1
+
+    k2_f = 0.065
+    k2_r = 0.85
+
+    k3_f = 0.009
+    k3_r = 0.1
+
+    k4_f = 0.001 * k3_f
+    k4_r = k3_r
+
+    k5_f = 3.3
+    k5_r = 0.00235
+
+    k6_f = 0.001 * k5_f
+    k6_r = k5_r
+
+    k7_f = 0.9
+    k7_r = 0.001
+
+
+    # Reaction 1: Binding/unbinding of minispindles
+    react1_for_g = reaction('T_+_+ + Msps -> T_+_+—Msps', k1_f)
+    react1_rev_g = reaction('T_+_+—Msps -> T_+_+ + Msps', k1_r)
+    react1_for_s = reaction('T_+_- + Msps -> T_+_-—Msps', k1_f)
+    react1_rev_s = reaction('T_+_-—Msps -> T_+_- + Msps', k1_r)
+    react1_for_n = reaction('T_+_0 + Msps -> T_+_0—Msps', k1_f)
+    react1_rev_n = reaction('T_+_0—Msps -> T_+_0 + Msps', k1_r)
+    react1 = [react1_for_g, react1_rev_g, react1_for_s, react1_rev_s, react1_for_n, react1_rev_n]
+
+    # Reaction 2: Binding/unbinding of K67A protein
+    react2_for_g = reaction('T_+_+—X + K67A -> T_+_+—X—K67A', k2_f)
+    react2_rev_g = reaction('T_+_+—X—K67A -> T_+_+—X + K67A', k2_r)
+    react2_for_s = reaction('T_+_-—X + K67A -> T_+_-—X—K67A', k2_f)
+    react2_rev_s = reaction('T_+_-—X—K67A -> T_+_-—X + K67A', k2_r)
+    react2_for_n = reaction('T_+_0—X + K67A -> T_+_0—X—K67A', k2_f)
+    react2_rev_n = reaction('T_+_0—X—K67A -> T_+_0—X + K67A', k2_r)
+    react2 = [react2_for_g, react2_rev_g, react2_for_s, react2_rev_s, react2_for_n, react2_rev_n]
+
+    # Reaction 3: Binding/unbinding of K59C protein from Mast complex
+    react3_for_g = reaction('T_+_+—X[Mast] + K59C -> T_+_+—X[Mast]—K59C', k3_f)
+    react3_rev_g = reaction('T_+_+—X[Mast]—K59C -> T_+_+—X[Mast] + K59C', k3_r)
+    react3_for_s = reaction('T_+_-—X[Mast] + K59C -> T_+_-—X[Mast]—K59C', k3_f)
+    react3_rev_s = reaction('T_+_-—X[Mast]—K59C -> T_+_-—X[Mast] + K59C', k3_r)
+    react3_for_n = reaction('T_+_0—X[Mast] + K59C -> T_+_0—X[Mast]—K59C', k3_f)
+    react3_rev_n = reaction('T_+_0—X[Mast]—K59C -> T_+_0—X[Mast] + K59C', k3_r)
+    react3 = [react3_for_g, react3_rev_g, react3_for_s, react3_rev_s, react3_for_n, react3_rev_n]
+
+    # Reaction 4: Binding/unbinding of K59C protein from general complex
+    react4_for_g = reaction('T_+_+—X—Mast + K59C -> T_+_+—X—Mast—K59C', k4_f)
+    react4_rev_g = reaction('T_+_+—X—Mast—K59C -> T_+_+—X—Mast + K59C', k4_r)
+    react4_for_s = reaction('T_+_-—X—Mast + K59C -> T_+_-—X—Mast—K59C', k4_f)
+    react4_rev_s = reaction('T_+_-—X—Mast—K59C -> T_+_-—X—Mast + K59C', k4_r)
+    react4_for_n = reaction('T_+_0—X—Mast + K59C -> T_+_0—X—Mast—K59C', k4_f)
+    react4_rev_n = reaction('T_+_0—X—Mast—K59C -> T_+_0—X—Mast + K59C', k4_r)
+    react4 = [react4_for_g, react4_rev_g, react4_for_s, react4_rev_s, react4_for_n, react4_rev_n]
+
+    # Reaction 5: Binding/unbinding of Mast from K59C complex
+    react5_for_g = reaction('T_+_+—X[K59C] + Mast -> T_+_+—X[K59C]—Mast', k5_f)
+    react5_rev_g = reaction('T_+_+—X[K59C]—Mast -> T_+_+—X[K59C] + Mast', k5_r)
+    react5_for_s = reaction('T_+_-—X[K59C] + Mast -> T_+_-—X[K59C]—Mast', k5_f)
+    react5_rev_s = reaction('T_+_-—X[K59C]—Mast -> T_+_-—X[K59C] + Mast', k5_r)
+    react5_for_n = reaction('T_+_0—X[K59C] + Mast -> T_+_0—X[K59C]—Mast', k5_f)
+    react5_rev_n = reaction('T_+_0—X[K59C]—Mast -> T_+_0—X[K59C] + Mast', k5_r)
+    react5 = [react5_for_g, react5_rev_g, react5_for_s, react5_rev_s, react5_for_n, react5_rev_n]
+
+    # Reaction 6: Binding/unbinding of Mast from general complex
+    #react6_for_g = reaction('
+
+
+
