@@ -344,80 +344,76 @@ if __name__ == "__main__":
     """
 
     # Simulate poleward flux of microtubule
+
+
     # Notation: T_e_s
     #  - e (+/-): Polarity of the end
     #  - s (+/-/0): State of the end
 
-    # Define rate constants for reactions
-    k1_f = 0.04
-    k1_r = 0.1
+    # Reaction 1: Plus-end polymerization (growth)
+    #   If y <= 50: k1 = (0.63 + 31.5*y) / 50
+    #   If y >  50: k1 = 31.5
+    #
+    react1 = reaction('Tn_+_+—X + T -> Tn+1_+_+—X', k1)
 
-    k2_f = 0.065
-    k2_r = 0.85
+    # Reaction 2: Plus-end depolymerization (shrinkage)
+    k2 = 15.75
+    react2 = reaction('Tn_+_-—X -> Tn-1_+_-—X', k2)
 
-    k3_f = 0.009
-    k3_r = 0.1
+    # Reaction 3: Minus-end polymerization (growth)
+    k3 = k2
+    react3 = reaction('Tn_-_+—X + T -> Tn+1_-_+—X', k3)
 
-    k4_f = 0.001 * k3_f
-    k4_r = k3_r
+    # Reaction 4: Minus-end depolymerization (shrinkage)
+    #   If y <= 50: k4 = 31.5 * (50 - y) / 50
+    #   If y >  50: k4 = 31.5
+    #
+    react4 = reaction('Tn_-_+—X -> Tn-1_-_+—X', k4)
 
-    k5_f = 3.3
-    k5_r = 0.00235
+    # Reaction 5: Minus-end catastrophe (growth -> stagnation)
+    k5 = 0.32
+    react5 = reaction('Tn_-_+ -> Tn_-_0', k5)
+    
+    # Reaction 6: Minus-end catastrophe (growth -> shrinkage)
+    k6 = 0.32
+    react6 = reaction('Tn_-_+ -> Tn_-_-', k6)
 
-    k6_f = 0.001 * k5_f
-    k6_r = k5_r
+    # Reaction 7: Minus-end catastrophe (stagnation -> shrinkage)
+    k7 = 0.32
+    react7 = reaction('Tn_-_0 -> Tn_-_-', k7)
 
-    k7_f = 0.9
-    k7_r = 0.001
+    # Reaction 8: Minus-end rescue (shrinkage -> stagnation)
+    k8 = 0.1
+    react8 = reaction('Tn_-_- -> Tn_-_0', k8)
 
+    # Reaction 9: Minus-end rescue (shrinkage -> growth)
+    k9 = 0.1
+    react9 = reaction('Tn_-_- -> Tn_-_+', k9)
 
-    # Reaction 1: Binding/unbinding of minispindles
-    react1_for_g = reaction('T_+_+ + Msps -> T_+_+—Msps', k1_f)
-    react1_rev_g = reaction('T_+_+—Msps -> T_+_+ + Msps', k1_r)
-    react1_for_s = reaction('T_+_- + Msps -> T_+_-—Msps', k1_f)
-    react1_rev_s = reaction('T_+_-—Msps -> T_+_- + Msps', k1_r)
-    react1_for_n = reaction('T_+_0 + Msps -> T_+_0—Msps', k1_f)
-    react1_rev_n = reaction('T_+_0—Msps -> T_+_0 + Msps', k1_r)
-    react1 = [react1_for_g, react1_rev_g, react1_for_s, react1_rev_s, react1_for_n, react1_rev_n]
+    # Reaction 10: Minus-end rescue (stagnation -> growth)
+    k10 = 0.1
+    react10 = reaction('Tn_-_0 -> Tn_-_+', k10)
 
-    # Reaction 2: Binding/unbinding of K67A protein
-    react2_for_g = reaction('T_+_+—X + K67A -> T_+_+—X—K67A', k2_f)
-    react2_rev_g = reaction('T_+_+—X—K67A -> T_+_+—X + K67A', k2_r)
-    react2_for_s = reaction('T_+_-—X + K67A -> T_+_-—X—K67A', k2_f)
-    react2_rev_s = reaction('T_+_-—X—K67A -> T_+_-—X + K67A', k2_r)
-    react2_for_n = reaction('T_+_0—X + K67A -> T_+_0—X—K67A', k2_f)
-    react2_rev_n = reaction('T_+_0—X—K67A -> T_+_0—X + K67A', k2_r)
-    react2 = [react2_for_g, react2_rev_g, react2_for_s, react2_rev_s, react2_for_n, react2_rev_n]
+    # Reaction 11: Plus-end catastrophe (growth -> shrinkage)
+    k11 = 0.0011
+    react11 = reaction('Tn_+_+ -> Tn_+_-', k11)
 
-    # Reaction 3: Binding/unbinding of K59C protein from Mast complex
-    react3_for_g = reaction('T_+_+—X[Mast] + K59C -> T_+_+—X[Mast]—K59C', k3_f)
-    react3_rev_g = reaction('T_+_+—X[Mast]—K59C -> T_+_+—X[Mast] + K59C', k3_r)
-    react3_for_s = reaction('T_+_-—X[Mast] + K59C -> T_+_-—X[Mast]—K59C', k3_f)
-    react3_rev_s = reaction('T_+_-—X[Mast]—K59C -> T_+_-—X[Mast] + K59C', k3_r)
-    react3_for_n = reaction('T_+_0—X[Mast] + K59C -> T_+_0—X[Mast]—K59C', k3_f)
-    react3_rev_n = reaction('T_+_0—X[Mast]—K59C -> T_+_0—X[Mast] + K59C', k3_r)
-    react3 = [react3_for_g, react3_rev_g, react3_for_s, react3_rev_s, react3_for_n, react3_rev_n]
+    # Reaction 12: Plus-end catastrophe (growth -> stagnation)
+    k12 = 0.56
+    react12 = reaction('Tn_+_+ -> Tn_+_0', k12)
 
-    # Reaction 4: Binding/unbinding of K59C protein from general complex
-    react4_for_g = reaction('T_+_+—X—Mast + K59C -> T_+_+—X—Mast—K59C', k4_f)
-    react4_rev_g = reaction('T_+_+—X—Mast—K59C -> T_+_+—X—Mast + K59C', k4_r)
-    react4_for_s = reaction('T_+_-—X—Mast + K59C -> T_+_-—X—Mast—K59C', k4_f)
-    react4_rev_s = reaction('T_+_-—X—Mast—K59C -> T_+_-—X—Mast + K59C', k4_r)
-    react4_for_n = reaction('T_+_0—X—Mast + K59C -> T_+_0—X—Mast—K59C', k4_f)
-    react4_rev_n = reaction('T_+_0—X—Mast—K59C -> T_+_0—X—Mast + K59C', k4_r)
-    react4 = [react4_for_g, react4_rev_g, react4_for_s, react4_rev_s, react4_for_n, react4_rev_n]
+    # Reaction 13: Plus-end catastrophe (stagnation -> shrinkage)
+    k13 = 0.0002
+    react13 = reaction('Tn_+_0 -> Tn_+_-', k13)
 
-    # Reaction 5: Binding/unbinding of Mast from K59C complex
-    react5_for_g = reaction('T_+_+—X[K59C] + Mast -> T_+_+—X[K59C]—Mast', k5_f)
-    react5_rev_g = reaction('T_+_+—X[K59C]—Mast -> T_+_+—X[K59C] + Mast', k5_r)
-    react5_for_s = reaction('T_+_-—X[K59C] + Mast -> T_+_-—X[K59C]—Mast', k5_f)
-    react5_rev_s = reaction('T_+_-—X[K59C]—Mast -> T_+_-—X[K59C] + Mast', k5_r)
-    react5_for_n = reaction('T_+_0—X[K59C] + Mast -> T_+_0—X[K59C]—Mast', k5_f)
-    react5_rev_n = reaction('T_+_0—X[K59C]—Mast -> T_+_0—X[K59C] + Mast', k5_r)
-    react5 = [react5_for_g, react5_rev_g, react5_for_s, react5_rev_s, react5_for_n, react5_rev_n]
+    # Reaction 14: Plus-end rescue (stagnation -> growth)
+    k14 = 0.099
+    react14 = reaction('Tn_+_0 -> Tn_+_+', k14)
 
-    # Reaction 6: Binding/unbinding of Mast from general complex
-    #react6_for_g = reaction('
+    # Reaction 15: Plus-end rescue (shrinkage -> growth)
+    k15 = 0.05
+    react15 = reaction('Tn_+_- -> Tn_+_+', k15)
 
-
-
+    # Reaction 16: Plus-end rescue (shrinkage -> stagnation)
+    k16 = 0.061
+    react16 = reaction('Tn_+_- -> Tn_+_0', k16)
