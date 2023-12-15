@@ -1,6 +1,3 @@
-This is a python script that will allow the simulation of discrete, stochastic chemical systems over time. It is based on the work from the following paper:
+Simple Python script that implements the Gillespie algorithm for simulation of stochastic systems. Follows / is based on the original 1977 paper.
 
-J. Phys. Chem. 1977, 81, 25, 2340–2361
-Publication Date:December 1, 1977
-https://doi.org/10.1021/j100540a008
-# gillespie_sim
+D. T. Gillespie, “Exact stochastic simulation of coupled chemical reactions,” The Journal of Physical Chemistry, vol. 81, no. 25, pp. 2340–2361, Dec. 1977. doi:10.1021/j100540a008 
